@@ -1,0 +1,3 @@
+mkdir -p lib
+mv bin/crawl_result_item.dart lib/
+mv bin/crawl_result_item.freezed.dart lib/ 
