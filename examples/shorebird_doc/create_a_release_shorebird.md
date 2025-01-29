@@ -1,0 +1,383 @@
+---
+title: 'Create a Release | Shorebird'
+ogTitle: 'Create a Release'
+description: 'Learn how to publish a new app release to Shorebird.'
+type: 'article'
+url: 'https://docs.shorebird.dev/code-push/release/'
+---
+
+[Skip to content](https://docs.shorebird.dev/code-push/release/#_top)
+
+# Create a Release
+
+In order to start pushing updates, you will need to create a release.
+
+Creating a release builds and submits your app to Shorebird. Shorebird saves the
+compiled Dart code from your application in order to make updates smaller in
+size.
+
+- [Android](https://docs.shorebird.dev/code-push/release/#tab-panel-14)
+- [iOS](https://docs.shorebird.dev/code-push/release/#tab-panel-15)
+- [macOS (beta)](https://docs.shorebird.dev/code-push/release/#tab-panel-16)
+- [Windows (beta)](https://docs.shorebird.dev/code-push/release/#tab-panel-17)
+
+Create an Android release by running the following command:
+
+`shorebird release android`
+
+Example output:
+
+```
+
+$ shorebird release android
+
+✓ Building release (9.6s)
+
+✓ Fetching apps (0.2s)
+
+✓ Detecting release version (0.2s)
+
+✓ Fetching releases (68ms)
+
+🚀 Ready to create a new release!
+
+📱 App: new_flutter_app (7a29188a-9363-426a-9a36-74a5e166373d)
+
+📦 Release Version: 1.0.0+1
+
+🕹️  Platform: android (arm64, arm32, x86_64)
+
+Would you like to continue? (y/N) Yes
+
+✓ Fetching Flutter revision (30ms)
+
+✓ Updating release status (67ms)
+
+✓ Creating artifacts (2.8s)
+
+✓ Updating release status (62ms)
+
+✅ Published Release!
+
+Your next step is to upload the app bundle to the Play Store.
+
+build/app/outputs/bundle/release/app-release.aab
+
+See the following link for more information:
+
+https://support.google.com/googleplay/android-developer/answer/9859152?hl=en
+```
+
+If your application supports flavors or multiple release targets, you can specify the flavor and target using the `--flavor` and `--target` options:
+
+```
+
+shorebird release android --target ./lib/main_development.dart --flavor development
+```
+
+By default, `shorebird release android` builds an AppBundle ( `.aab`).
+If you would like to _also_ generate an Android Package Kit ( `.apk`), use the
+following command:
+
+```
+
+shorebird release android --artifact apk
+```
+
+To release with a different Flutter version, you can specify the version using the `--flutter-version` flag.
+
+```
+
+shorebird release android --flutter-version 3.19.0
+```
+
+Create an iOS release by running the following command:
+
+`shorebird release ios`
+
+Example output:
+
+```
+
+$ shorebird release ios
+
+✓ Fetching apps (0.2s)
+
+✓ Building release (59.0s)
+
+✓ Getting release version (40ms)
+
+✓ Fetching releases (0.1s)
+
+🚀 Ready to create a new release!
+
+📱 App: My App (7a29188a-9363-426a-9a36-74a5e166373d)
+
+📦 Release Version: 1.0.0+1
+
+🕹️  Platform: ios
+
+Would you like to continue? (y/N) Yes
+
+✓ Fetching Flutter revision (40ms)
+
+✓ Creating release (0.1s)
+
+✓ Creating artifacts (5.1s)
+
+✓ Updating release status (57ms)
+
+✅ Published Release!
+
+Your next step is to upload the ipa to App Store Connect.
+
+build/ios/ipa/new_flutter_app.ipa
+
+To upload to the App Store either:
+
+    1. Drag and drop the "build/ios/ipa/new_flutter_app.ipa" bundle into the Apple Transporter macOS app (https://apps.apple.com/us/app/transporter/id1450874784)
+
+    2. Run xcrun altool --upload-app --type ios -f build/ios/ipa/new_flutter_app.ipa --apiKey your_api_key --apiIssuer your_issuer_id.
+
+       See "man altool" for details about how to authenticate with the App Store Connect API key.
+```
+
+If your application supports flavors or multiple release targets, you can specify the flavor and target using the `--flavor` and `--target` options:
+
+```
+
+shorebird release ios --target ./lib/main_development.dart --flavor development
+```
+
+To release with a different Flutter version, you can specify the version using the `--flutter-version` flag.
+
+```
+
+shorebird release ios --flutter-version 3.19.0
+```
+
+### Signing issues
+
+Depending on how you normally sign your iOS app, you may see an error at the end
+of the build saying something like: `Runner.app requires a provisioning profile with ___ feature` or that no signing certificate was found. This can be
+addressed in a few ways:
+
+#### Setting up automatic signing in Xcode
+
+If you are releasing on your local machine (i.e., not in a CI environment), this
+option is easier than the following options, but does not always work well in CI
+environments.
+
+In Xcode, open your project and navigate to the “Signing & Capabilities” tab.
+Ensure that “Automatically manage signing” is checked.
+
+#### Create an ExportOptions.plist file.
+
+You may need to provide an ExportOptions.plist file to the `shorebird release ios` command. This file is used by Xcode to determine which certificate and
+provisioning profile should be used to sign the .ipa. An example of this file
+is:
+
+```
+
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+
+<plist version="1.0">
+
+<dict>
+
+  <key>method</key>
+
+  <string>app-store</string>
+
+  <key>provisioningProfiles</key>
+
+  <dict>
+
+    <key>com.example.your_bundle_id</key>
+
+    <string>Your App's App Store Provisioning Profile Name</string>
+
+  </dict>
+
+  <key>signingCertificate</key>
+
+  <string>Apple Distribution</string>
+
+  <key>signingStyle</key>
+
+  <string>manual</string>
+
+  <key>teamID</key>
+
+  <string>*****</string> # From https://developer.apple.com/account
+
+</dict>
+
+</plist>
+```
+
+To use this file, pass it to the `shorebird release ios` command:
+
+```
+
+shorebird release ios --export-options-plist=path/to/ExportOptions.plist
+```
+
+Create a macOS release by running the following command:
+
+`shorebird release macos`
+
+Example output:
+
+```
+
+$ shorebird release macos
+
+✓ Fetching apps (0.3s)
+
+✓ Building app bundle with Flutter 3.27.0 (1e0e5760ee) (18.3s)
+
+✓ Fetching releases (0.1s)
+
+🚀 Ready to create a new release!
+
+📱 App: sample (d0cf1d8f-e741-4f5d-b280-b794000df1cd)
+
+📦 Release Version: 1.0.13+2
+
+🕹️  Platform: macos
+
+🐦 Flutter Version: 3.27.0 (1e0e5760ee)
+
+Would you like to continue? (y/N) Yes
+
+✓ Fetching releases (0.1s)
+
+✓ Creating release (0.3s)
+
+✓ Updating release status (0.1s)
+
+✓ Uploading artifacts (3.5s)
+
+✓ Updating release status (1.7s)
+
+✅ Published Release 1.0.13+2!
+
+macOS app created at build/macos/Build/Products/Release/new_flutter_app.app.
+
+To create a patch for this release, run shorebird patch --platforms=macos --release-version=1.0.0+1
+
+Note: shorebird patch --platforms=macos without the --release-version option will patch the current version of the app.
+```
+
+If your application supports flavors or multiple release targets, you can specify the flavor and target using the `--flavor` and `--target` options:
+
+```
+
+shorebird release macos --target ./lib/main_development.dart --flavor development
+```
+
+To release with a different Flutter version, you can specify the version using the `--flutter-version` flag.
+
+```
+
+shorebird release macos --flutter-version 3.24.5
+```
+
+Create a Windows release by running the following command:
+
+`shorebird release windows`
+
+Example output:
+
+```
+
+$ shorebird release windows
+
+✓ Fetching apps (0.3s)
+
+✓ Building Windows app with Flutter 3.27.1 (1e0e5760ee) (18.3s)
+
+✓ Fetching releases (0.1s)
+
+🚀 Ready to create a new release!
+
+📱 App: sample (d0cf1d8f-e741-4f5d-b280-b794000df1cd)
+
+📦 Release Version: 1.0.0+1
+
+🕹️  Platform: windows
+
+🐦 Flutter Version: 3.27.1 (1e0e5760ee)
+
+Would you like to continue? (y/N) Yes
+
+✓ Fetching releases (0.1s)
+
+✓ Creating release (0.3s)
+
+✓ Updating release status (0.1s)
+
+✓ Uploading artifacts (3.5s)
+
+✓ Updating release status (1.7s)
+
+✅ Published Release 1.0.13+2!
+
+Windows executable created at build/windows/x64/runner/Release
+
+To create a patch for this release, run shorebird patch --platforms=windows --release-version=1.0.0+1
+
+Note: shorebird patch --platforms=windows without the --release-version option will patch the current version of the app.
+```
+
+If your application supports flavors or multiple release targets, you can specify the flavor and target using the `--flavor` and `--target` options:
+
+```
+
+shorebird release windows --target ./lib/main_development.dart --flavor development
+```
+
+To release with a different Flutter version, you can specify the version using the `--flutter-version` flag.
+
+```
+
+shorebird release windows --flutter-version 3.27.1
+```
+
+## Manage Releases
+
+### List Releases
+
+You can view all of your releases for your current app (as defined by
+your shorebird.yaml) on the [Shorebird console](https://console.shorebird.dev/).
+
+### Delete Releases
+
+Deleting a release will remove all associated patches and artifacts
+and is **not reversible**.
+
+You can delete a release for your current app (as defined by your
+shorebird.yaml) on the [Shorebird console](https://console.shorebird.dev/).
+
+## Side-loading and MDM
+
+A common question we get asked is: Does Shorebird require publishing to the
+App Store or Play Store?
+
+No. Shorebird works fine with side-loading and mobile device management (MDM)
+on Android. We’ve not had anyone try Shorebird with iOS Developer Enterprise
+program, but we expect it to work just as well.
+
+To build Shorebird for distribution via APK (e.g. side-loading), use the
+`--artifact` flag with the `shorebird release` command. For example:
+
+```
+
+shorebird release android --artifact=apk
+```
+
+That will produce _both_ .apk and .aab files. You can distribute either
+or both as needed.

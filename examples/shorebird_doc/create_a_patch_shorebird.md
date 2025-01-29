@@ -1,0 +1,130 @@
+---
+title: 'Create a Patch | Shorebird'
+ogTitle: 'Create a Patch'
+description: 'Learn how to push updates to an app with Shorebird.'
+type: 'article'
+url: 'https://docs.shorebird.dev/code-push/patch/'
+---
+
+[Skip to content](https://docs.shorebird.dev/code-push/patch/#_top)
+
+# Create a Patch
+
+Once you have published a release of your app, you can push updates using one
+of the `shorebird patch` commands.
+
+- [Android](https://docs.shorebird.dev/code-push/patch/#tab-panel-10)
+- [iOS](https://docs.shorebird.dev/code-push/patch/#tab-panel-11)
+- [macOS (beta)](https://docs.shorebird.dev/code-push/patch/#tab-panel-12)
+- [Windows (beta)](https://docs.shorebird.dev/code-push/patch/#tab-panel-13)
+
+```
+
+shorebird patch android
+```
+
+```
+
+shorebird patch ios
+```
+
+```
+
+shorebird patch macos
+```
+
+```
+
+shorebird patch windows
+```
+
+This will do several things:
+
+1. Builds the artifacts for the update.
+2. Downloads the corresponding release artifacts.
+3. Generates a patch using the diff between the release and the current changes.
+4. Uploads the patch artifacts to the Shorebird backend
+5. Promotes the patch to the stable channel.
+
+Example output:
+
+```
+
+$ shorebird patch android
+
+✓ Building patch (3.0s)
+
+✓ Fetching apps (0.2s)
+
+✓ Detecting release version (0.3s)
+
+✓ Fetching release (77ms)
+
+✓ Fetching Flutter revision (15ms)
+
+✓ Fetching release artifacts (0.3s)
+
+✓ Downloading release artifacts (1.9s)
+
+✓ Creating artifacts (4.1s)
+
+🚀 Ready to publish a new patch!
+
+📱 App: My App (61fc9c16)
+
+📦 Release Version: 0.1.0+1
+
+📺 Channel: stable
+
+🕹️  Platform: android [arm64 (166.20 KB), arm32 (161.78 KB), x86_64 (161.51 KB)]
+
+Would you like to continue? (y/N) Yes
+
+✓ Creating patch (93ms)
+
+✓ Uploading artifacts (1.5s)
+
+✓ Fetching channels (86ms)
+
+✓ Promoting patch to stable (78ms)
+
+✅ Published Patch!
+```
+
+By default, this uses the release version that the app is currently on. If you
+want to patch a different release version, you can use the `--release-version`
+option. For example:
+
+```
+
+shorebird patch android --release-version 0.1.0+1
+```
+
+If your application supports flavors or multiple release targets, you can specify the flavor and target using the `--flavor` and `--target` options:
+
+```
+
+shorebird patch [android|ios] --target lib/main_development.dart --flavor development
+```
+
+### Patch Performance
+
+#### Android
+
+Patching an application on Android has no effect on performance.
+
+#### iOS and macOS
+
+Patching an application on iOS and macOS typically does not affect an application
+performance. However the patching mechanism on iOS and macOS is different from Android.
+Unchanged code runs as normal (on the CPU), changed (or added) code will run in
+a Dart interpreter (slower than the CPU). Typically this change is
+undetectable, but if you are changing particularly performance-sensitive Dart
+code (e.g. code for processing images, or large data) you may see a performance
+difference after patching.
+
+You can always test your patches before sending them to users using by
+[staging patches](https://docs.shorebird.dev/guides/staging-patches).
+
+If you ever see unexpected performance changes when patching, please [contact\\
+us](mailto:contact@shorebird.dev) we would love to help!

@@ -3,7 +3,7 @@
 ![Dart Version](https://img.shields.io/badge/dart-3.4.0%2B-blue.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A local file processor for Firecrawl JSON outputs. Converts downloaded Firecrawl results into organized markdown documentation.
+A local file processor for Firecrawl JSON outputs. Converts downloaded Firecrawl results into organized markdown documentation. Optimized for LLM preprocessing with clean text output.
 
 
 ## Installation
@@ -11,7 +11,7 @@ A local file processor for Firecrawl JSON outputs. Converts downloaded Firecrawl
 ### Prerequisites
 - Dart SDK 3.4.0+
 
-```base
+```bash
 fvm dart run firecrawl_parser <input_directory> <output_directory>
 ```
 
@@ -21,17 +21,21 @@ fvm dart run firecrawl_parser <input_directory> <output_directory>
 | `input_directory`  | Path containing Firecrawl JSON files     |
 | `output_directory` | Target path for processed markdown files |
 
-### Input File Requirements
-1. Place raw JSON files in input directory
-2. Expected structure (single file or multiple files):
+### Input/Output Structure
 
-
-
-#### Input Example
+#### Input Structure
 ```
 input_directory/
 ├── file1.json
 ├── file2.json
+└── ...
+```
+
+#### Output Structure
+```
+output_directory/
+├── file1.md    # Contains cleaned markdown with metadata
+├── file2.md    # Ready for LLM processing
 └── ...
 ```
 
@@ -49,12 +53,4 @@ input_directory/
     }
 }
 ]
-```
-
-#### Output Example
-```
-output_directory/
-├── file1.md
-├── file2.md
-└── ...
 ```
